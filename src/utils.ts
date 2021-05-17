@@ -81,4 +81,6 @@ export async function updateMajorTag(sourceTag: string, octokitClient: InstanceT
             sha: sourceTagSHA
         });
     }
+
+    return majorTag
 }

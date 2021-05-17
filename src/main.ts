@@ -12,7 +12,9 @@ async function run() {
 
         await checkIfReleaseIsPublished(sourceTagName, octokitClient);
 
-        await updateMajorTag(sourceTagName, octokitClient);
+        const majorTag = await updateMajorTag(sourceTagName, octokitClient);
+
+        core.setOutput('major-tag', majorTag);
     } catch (error) {
         core.setFailed(error.message);
     }

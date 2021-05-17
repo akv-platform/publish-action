@@ -36,7 +36,8 @@ async function run() {
         const sourceTagName = core.getInput('tag-name');
         utils_1.validateSemverVersionFromTag(sourceTagName);
         await utils_1.checkIfReleaseIsPublished(sourceTagName, octokitClient);
-        await utils_1.updateMajorTag(sourceTagName, octokitClient);
+        const majorTag = await utils_1.updateMajorTag(sourceTagName, octokitClient);
+        core.setOutput('major-tag', majorTag);
     }
     catch (error) {
         core.setFailed(error.message);
@@ -142,6 +143,7 @@ async function updateMajorTag(sourceTag, octokitClient) {
             sha: sourceTagSHA
         });
     }
+    return majorTag;
 }
 exports.updateMajorTag = updateMajorTag;
 
