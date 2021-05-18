@@ -1,6 +1,7 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { validateSemverVersionFromTag, updateMajorTag, checkIfReleaseIsPublished } from "./utils";
+import { updateTag, checkIfReleaseIsPublished, } from "./api-utils";
+import { validateSemverVersionFromTag, getMajorTagFromFullTag } from "./version-utils";
 
 async function run() {
     try {
@@ -12,7 +13,8 @@ async function run() {
 
         await checkIfReleaseIsPublished(sourceTagName, octokitClient);
 
-        const majorTag = await updateMajorTag(sourceTagName, octokitClient);
+        const majorTag = getMajorTagFromFullTag(sourceTagName);
+        await updateTag(sourceTagName, majorTag, octokitClient);
 
         core.setOutput('major-tag', majorTag);
     } catch (error) {

@@ -8,19 +8,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akv-platform/publish-action.git"
+    "url": "git+https://github.com/actions/publish-action.git"
   },
   "keywords": [
     "actions",
-    "publish",
-    "action"
+    "publish"
   ],
   "author": "GitHub",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/akv-platform/publish-action/issues"
+    "url": "https://github.com/actions/publish-action/issues"
   },
-  "homepage": "https://github.com/akv-platform/publish-action#readme",
+  "homepage": "https://github.com/actions/publish-action#readme",
   "dependencies": {
     "@actions/core": "^1.2.7",
     "@actions/github": "^4.0.0"

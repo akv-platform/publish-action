@@ -1,6 +1,88 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 2430:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.updateTag = exports.checkIfReleaseIsPublished = void 0;
+// import * as core from "@actions/core";
+const core = __importStar(__nccwpck_require__(2186));
+const github_1 = __nccwpck_require__(5438);
+async function getTagSHA(tag, octokitClient) {
+    core.debug(`Getting info about the ${tag} tag from remote repository`);
+    const { data: tagObj } = await octokitClient.git.getRef({
+        ...github_1.context.repo,
+        ref: `tags/${tag}`
+    });
+    return tagObj.object.sha;
+}
+async function findTag(refName, octokitClient) {
+    const { data: foundTag } = await octokitClient.git.listMatchingRefs({
+        ...github_1.context.repo,
+        ref: refName
+    });
+    return foundTag.find(refObj => refObj.ref.endsWith(refName));
+}
+async function checkIfReleaseIsPublished(tag, octokitClient) {
+    core.debug(`Getting a release for the ${tag} tag`);
+    const { data: foundRelease } = await octokitClient.rest.repos.getReleaseByTag({
+        ...github_1.context.repo,
+        tag,
+    });
+    if (foundRelease.prerelease) {
+        throw new Error(`The '${foundRelease.name}' release is marked as pre-release. Updating tags for pre-release is not supported`);
+    }
+}
+exports.checkIfReleaseIsPublished = checkIfReleaseIsPublished;
+async function updateTag(sourceTag, targetTag, octokitClient) {
+    const refName = `tags/${targetTag}`;
+    const sourceTagSHA = await getTagSHA(sourceTag, octokitClient);
+    const foundTargetTag = await findTag(refName, octokitClient);
+    if (foundTargetTag) {
+        core.info(`Updating the ${targetTag} tag to point to the ${sourceTag} tag`);
+        await octokitClient.git.updateRef({
+            ...github_1.context.repo,
+            ref: refName,
+            sha: sourceTagSHA,
+            force: true
+        });
+    }
+    else {
+        core.info(`Creating the ${targetTag} tag from the ${sourceTag} tag`);
+        await octokitClient.git.createRef({
+            ...github_1.context.repo,
+            ref: `refs/${refName}`,
+            sha: sourceTagSHA
+        });
+    }
+}
+exports.updateTag = updateTag;
+
+
+/***/ }),
+
 /***/ 3109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -28,15 +110,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const utils_1 = __nccwpck_require__(918);
+const api_utils_1 = __nccwpck_require__(2430);
+const version_utils_1 = __nccwpck_require__(1534);
 async function run() {
     try {
         const token = core.getInput('token');
         const octokitClient = github.getOctokit(token);
         const sourceTagName = core.getInput('tag-name');
-        utils_1.validateSemverVersionFromTag(sourceTagName);
-        await utils_1.checkIfReleaseIsPublished(sourceTagName, octokitClient);
-        const majorTag = await utils_1.updateMajorTag(sourceTagName, octokitClient);
+        version_utils_1.validateSemverVersionFromTag(sourceTagName);
+        await api_utils_1.checkIfReleaseIsPublished(sourceTagName, octokitClient);
+        const majorTag = version_utils_1.getMajorTagFromFullTag(sourceTagName);
+        await api_utils_1.updateTag(sourceTagName, majorTag, octokitClient);
         core.setOutput('major-tag', majorTag);
     }
     catch (error) {
@@ -49,103 +133,35 @@ run();
 
 /***/ }),
 
-/***/ 918:
+/***/ 1534:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.updateMajorTag = exports.checkIfReleaseIsPublished = exports.validateSemverVersionFromTag = void 0;
+exports.validateSemverVersionFromTag = exports.getMajorTagFromFullTag = void 0;
 // import * as core from "@actions/core";
-const core = __importStar(__nccwpck_require__(2186));
 const parse_1 = __importDefault(__nccwpck_require__(5925));
-const github_1 = __nccwpck_require__(5438);
 function isStableSemverVersion(version) {
     return version.prerelease.length === 0 && version.build.length === 0;
 }
-async function getSourceTagSHA(sourceTag, octokitClient) {
-    core.debug(`Getting info about the ${sourceTag} tag from remote repository`);
-    const { data: sourceTagObj } = await octokitClient.git.getRef({
-        ...github_1.context.repo,
-        ref: `tags/${sourceTag}`
-    });
-    return sourceTagObj.object.sha;
+function getMajorTagFromFullTag(fullTag) {
+    return fullTag.split(".")[0];
 }
-async function findMajorTag(refName, octokitClient) {
-    const { data: foundRefs } = await octokitClient.git.listMatchingRefs({
-        ...github_1.context.repo,
-        ref: refName
-    });
-    return foundRefs.find(refObj => refObj.ref.endsWith(refName));
-}
+exports.getMajorTagFromFullTag = getMajorTagFromFullTag;
 function validateSemverVersionFromTag(tag) {
     const semverVersion = parse_1.default(tag);
     if (!semverVersion) {
-        throw new Error(`The ${tag} tag contains unsupported type of version. Only semantic versioning specification is acceptable`);
+        throw new Error(`The '${tag}' doesn't satisfy semantic versioning specification`);
     }
     if (!isStableSemverVersion(semverVersion)) {
-        throw new Error("You have to specify only stable version to update the major tag");
+        throw new Error("It is not allowed to specify pre-release version to update the major tag");
     }
 }
 exports.validateSemverVersionFromTag = validateSemverVersionFromTag;
-async function checkIfReleaseIsPublished(tag, octokitClient) {
-    core.debug(`Getting a release for the ${tag} tag`);
-    const { data: foundRelease } = await octokitClient.rest.repos.getReleaseByTag({
-        ...github_1.context.repo,
-        tag,
-    });
-    if (foundRelease.prerelease) {
-        throw new Error(`The '${foundRelease.name}' release for the ${tag} tag should be published`);
-    }
-}
-exports.checkIfReleaseIsPublished = checkIfReleaseIsPublished;
-async function updateMajorTag(sourceTag, octokitClient) {
-    const majorTag = sourceTag.split(".")[0];
-    const refName = `tags/${majorTag}`;
-    const sourceTagSHA = await getSourceTagSHA(sourceTag, octokitClient);
-    const foundMajorTag = await findMajorTag(refName, octokitClient);
-    if (foundMajorTag) {
-        core.info(`Updating the ${majorTag} tag to point to the ${sourceTag} tag`);
-        await octokitClient.git.updateRef({
-            ...github_1.context.repo,
-            ref: refName,
-            sha: sourceTagSHA,
-            force: true
-        });
-    }
-    else {
-        core.info(`Creating the ${majorTag} tag from the ${sourceTag} tag`);
-        await octokitClient.git.createRef({
-            ...github_1.context.repo,
-            ref: `refs/${refName}`,
-            sha: sourceTagSHA
-        });
-    }
-    return majorTag;
-}
-exports.updateMajorTag = updateMajorTag;
 
 
 /***/ }),
