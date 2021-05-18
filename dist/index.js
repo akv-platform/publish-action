@@ -26,40 +26,57 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.updateTag = exports.checkIfReleaseIsPublished = void 0;
-// import * as core from "@actions/core";
+exports.updateTag = exports.validateIfReleaseIsPublished = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github_1 = __nccwpck_require__(5438);
-async function getTagSHA(tag, octokitClient) {
-    core.debug(`Getting info about the ${tag} tag from remote repository`);
-    const { data: tagObj } = await octokitClient.git.getRef({
-        ...github_1.context.repo,
-        ref: `tags/${tag}`
-    });
-    return tagObj.object.sha;
-}
-async function findTag(refName, octokitClient) {
-    const { data: foundTag } = await octokitClient.git.listMatchingRefs({
-        ...github_1.context.repo,
-        ref: refName
-    });
-    return foundTag.find(refObj => refObj.ref.endsWith(refName));
-}
-async function checkIfReleaseIsPublished(tag, octokitClient) {
-    core.debug(`Getting a release for the ${tag} tag`);
-    const { data: foundRelease } = await octokitClient.rest.repos.getReleaseByTag({
-        ...github_1.context.repo,
-        tag,
-    });
-    if (foundRelease.prerelease) {
-        throw new Error(`The '${foundRelease.name}' release is marked as pre-release. Updating tags for pre-release is not supported`);
+async function findTag(tag, octokitClient) {
+    try {
+        const { data: foundTag } = await octokitClient.git.getRef({
+            ...github_1.context.repo,
+            ref: `tags/${tag}`
+        });
+        return foundTag;
+    }
+    catch (err) {
+        if (err.status === 404) {
+            return null;
+        }
+        else {
+            throw err;
+        }
     }
 }
-exports.checkIfReleaseIsPublished = checkIfReleaseIsPublished;
+async function getTagSHA(tag, octokitClient) {
+    const foundTag = await findTag(tag, octokitClient);
+    if (!foundTag) {
+        throw new Error(`The '${tag}' tag does not exist in the remote repository`);
+    }
+    return foundTag.object.sha;
+}
+async function validateIfReleaseIsPublished(tag, octokitClient) {
+    try {
+        const { data: foundRelease } = await octokitClient.rest.repos.getReleaseByTag({
+            ...github_1.context.repo,
+            tag,
+        });
+        if (foundRelease.prerelease) {
+            throw new Error(`The '${foundRelease.name}' release is marked as pre-release. Updating tags for pre-release is not supported`);
+        }
+    }
+    catch (err) {
+        if (err.status === 404) {
+            throw new Error(`No GitHub release found for the ${tag} tag`);
+        }
+        else {
+            throw err;
+        }
+    }
+}
+exports.validateIfReleaseIsPublished = validateIfReleaseIsPublished;
 async function updateTag(sourceTag, targetTag, octokitClient) {
-    const refName = `tags/${targetTag}`;
     const sourceTagSHA = await getTagSHA(sourceTag, octokitClient);
-    const foundTargetTag = await findTag(refName, octokitClient);
+    const foundTargetTag = await findTag(targetTag, octokitClient);
+    const refName = `tags/${targetTag}`;
     if (foundTargetTag) {
         core.info(`Updating the ${targetTag} tag to point to the ${sourceTag} tag`);
         await octokitClient.git.updateRef({
@@ -118,10 +135,11 @@ async function run() {
         const octokitClient = github.getOctokit(token);
         const sourceTagName = core.getInput('tag-name');
         version_utils_1.validateSemverVersionFromTag(sourceTagName);
-        await api_utils_1.checkIfReleaseIsPublished(sourceTagName, octokitClient);
+        await api_utils_1.validateIfReleaseIsPublished(sourceTagName, octokitClient);
         const majorTag = version_utils_1.getMajorTagFromFullTag(sourceTagName);
         await api_utils_1.updateTag(sourceTagName, majorTag, octokitClient);
         core.setOutput('major-tag', majorTag);
+        core.info(`The ${majorTag} major tag now points to the ${sourceTagName} tag`);
     }
     catch (error) {
         core.setFailed(error.message);
@@ -143,13 +161,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.validateSemverVersionFromTag = exports.getMajorTagFromFullTag = void 0;
-// import * as core from "@actions/core";
 const parse_1 = __importDefault(__nccwpck_require__(5925));
 function isStableSemverVersion(version) {
     return version.prerelease.length === 0 && version.build.length === 0;
 }
 function getMajorTagFromFullTag(fullTag) {
-    return fullTag.split(".")[0];
+    return fullTag.split('.')[0];
 }
 exports.getMajorTagFromFullTag = getMajorTagFromFullTag;
 function validateSemverVersionFromTag(tag) {
@@ -158,7 +175,7 @@ function validateSemverVersionFromTag(tag) {
         throw new Error(`The '${tag}' doesn't satisfy semantic versioning specification`);
     }
     if (!isStableSemverVersion(semverVersion)) {
-        throw new Error("It is not allowed to specify pre-release version to update the major tag");
+        throw new Error('It is not allowed to specify pre-release version to update the major tag');
     }
 }
 exports.validateSemverVersionFromTag = validateSemverVersionFromTag;

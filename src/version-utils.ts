@@ -1,16 +1,15 @@
-// import * as core from "@actions/core";
-import semverParse from "semver/functions/parse";
-import SemVer from "semver/classes/semver";
+import semverParse from 'semver/functions/parse';
+import SemVer from 'semver/classes/semver';
 
-function isStableSemverVersion(version: SemVer) {
+function isStableSemverVersion(version: SemVer): boolean {
     return version.prerelease.length === 0 && version.build.length === 0
 }
 
-export function getMajorTagFromFullTag(fullTag: string) {
-    return fullTag.split(".")[0];
+export function getMajorTagFromFullTag(fullTag: string): string {
+    return fullTag.split('.')[0];
 }
 
-export function validateSemverVersionFromTag(tag: string) {
+export function validateSemverVersionFromTag(tag: string): void {
     const semverVersion = semverParse(tag);
     if (!semverVersion) {
         throw new Error(
@@ -20,7 +19,7 @@ export function validateSemverVersionFromTag(tag: string) {
 
     if (!isStableSemverVersion(semverVersion)) {
         throw new Error(
-            "It is not allowed to specify pre-release version to update the major tag"
+            'It is not allowed to specify pre-release version to update the major tag'
         );
     }
 }

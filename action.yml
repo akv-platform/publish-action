@@ -5,7 +5,7 @@ inputs:
     description: 'Tag name that the major tag will point to. Examples: v1.2.3, 1.2.3'
     required: true
   token:
-    description: "Token to get an authenticated Octokit"
+    description: 'Token to get an authenticated Octokit'
     default: ${{ github.token }}
 outputs:
   major-tag:
