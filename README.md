@@ -1,6 +1,6 @@
 # publish-action
 
-** Please note: this action is for internal usage only, we don't track issues or accept any contributions. We also do not recommend it for public or production usage.**
+**Please note: this action is for internal usage only, we don't track issues or accept any contributions. We also do not recommend it for public or production usage.**
 
 This actions adds reliablity to the new action version publishing process.
 
