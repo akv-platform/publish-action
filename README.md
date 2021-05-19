@@ -2,7 +2,7 @@
 
 **Please note: this action is for internal usage only, we don't track issues or accept any contributions. We also do not recommend it for public or production usage.**
 
-This actions adds reliablity to the new action version publishing and handles the following cases:
+This action adds reliablity to the new action version publishing and handles the following cases:
 - Update major tag (v1, for example) to point to the latest release (v1.2.1, for example).
 - Create major tag from the latest released tag if major tag doesn't exist 
 
