@@ -10,9 +10,13 @@ This action adds reliablity to the new action version publishing and handles the
 Alpha. Action is under development and internal testing.
 
 ## Usage
-Action can be triggered on release creation or manually. Actual major tag update will require manual approval. See [workflow.yml](./.github/workflow.yml) for usage example.
+Action can be triggered on release creation or manually. Actual major tag update will require manual approval. 
+See [workflow.yml](./.github/workflow.yml) for usage example.
 
 See [action.yml](action.yml) for full description of input and output fields.
+Read more about action versioning notation in [action-versioning.md](https://github.com/actions/toolkit/blob/main/docs/action-versioning.md).
+
+To rollback release in case of customer's impact, trigger workflow manually and specify the previous stable tag.
 
 ## Conributions
 
