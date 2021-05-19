@@ -14,15 +14,8 @@ Alpha. Action is under development and internal testing.
 ## Usage
 Action can be triggered on release creation or manually. Actual major tag update will require manual approval.
 
-Include code snippet below to use this action in your workflow.
-```
-steps:
-  - uses: actions/checkout@v2
-  - uses: actions/publish-action@main
-    name: Push major tag to new release
-    with:
-      tag-name: ${{ github.event.release.tag_name }} # tag name from the release publish event or from the workflow_dispatch input
-```
+Use [workflow](workflow.yml) as an example of action usage.
+
 See [action.yml](action.yml) for full description of input and output fields.
 
 ## License
