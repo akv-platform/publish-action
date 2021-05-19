@@ -14,7 +14,7 @@ Alpha. Action is under development and internal testing.
 ## Usage
 Action can be triggered on release creation or manually. Actual major tag update will require manual approval.
 
-Use [workflow](workflow.yml) as an example of action usage.
+Use [workflow.yml](workflow.yml) as an example of action usage.
 
 See [action.yml](action.yml) for full description of input and output fields.
 
