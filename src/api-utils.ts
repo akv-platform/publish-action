@@ -52,7 +52,7 @@ export async function validateIfReleaseIsPublished(
     octokitClient: InstanceType<typeof GitHub>
 ): Promise<void> {
     try {
-        const { data: foundRelease } = await octokitClient.rest.repos.getReleaseByTag({
+        const { data: foundRelease } = await octokitClient.repos.getReleaseByTag({
             ...context.repo,
             tag,
         });
@@ -83,7 +83,7 @@ export async function updateTag(
     const refName = `tags/${targetTag}`;
 
     if (foundTargetTag) {
-        core.info(`Updating the ${targetTag} tag to point to the ${sourceTag} tag`);
+        core.info(`Updating the '${targetTag}' tag to point to the '${sourceTag}' tag`);
 
         await octokitClient.git.updateRef({
             ...context.repo,
@@ -92,7 +92,7 @@ export async function updateTag(
             force: true
         });
     } else {
-        core.info(`Creating the ${targetTag} tag from the ${sourceTag} tag`);
+        core.info(`Creating the '${targetTag}' tag from the '${sourceTag}' tag`);
 
         await octokitClient.git.createRef({
             ...context.repo,

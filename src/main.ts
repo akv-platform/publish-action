@@ -17,7 +17,7 @@ async function run(): Promise<void> {
         await updateTag(sourceTagName, majorTag, octokitClient);
 
         core.setOutput('major-tag', majorTag);
-        core.info(`The ${majorTag} major tag now points to the ${sourceTagName} tag`);
+        core.info(`The '${majorTag}' major tag now points to the '${sourceTagName}' tag`);
     } catch (error) {
         core.setFailed(error.message);
     }
