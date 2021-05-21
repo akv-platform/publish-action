@@ -44,5 +44,5 @@ jobs:
         curl `
           -X POST `
           -H 'Content-type: application/json' `
-          --data '{\"text\":\"The ${{ steps.update-major-tag.outputs.major-tag }} tag has been successfully updated for the ${{ github.repository }} action to include changes from the ${{ github.event.inputs.TAG_NAME }}\"}' `
+          --data '{\"text\":\"The ${{ steps.update-major-tag.outputs.major-tag }} tag has been successfully updated for the ${{ github.repository }} action to include changes from the ${{ env.TAG_NAME }}\"}' `
           ${{ secrets.SLACK }}
