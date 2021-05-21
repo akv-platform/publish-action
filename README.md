@@ -11,7 +11,7 @@ Alpha. Action is under development and internal testing.
 
 ## Usage
 Action can be triggered on release creation or manually. The actual major tag update will require manual approval. 
-See [workflow.yml](./.github/workflow.yml) for usage example.
+See [release-new-action-version.yml](./.github/release-new-action-version.yml) for usage example.
 
 See [action.yml](action.yml) for a complete description of input and output fields.
 Read more about action versioning notation in [action-versioning.md](https://github.com/actions/toolkit/blob/main/docs/action-versioning.md).
