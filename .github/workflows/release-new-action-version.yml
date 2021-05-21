@@ -27,7 +27,7 @@ jobs:
       id: update-major-tag
       uses: ./
       with:
-        tag-name: ${{ env.TAG_NAME }}
+        source-tag: ${{ env.TAG_NAME }}
 
     - name: Send slack message
       if: failure()

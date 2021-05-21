@@ -133,7 +133,7 @@ async function run() {
     try {
         const token = core.getInput('token');
         const octokitClient = github.getOctokit(token);
-        const sourceTagName = core.getInput('tag-name');
+        const sourceTagName = core.getInput('source-tag');
         version_utils_1.validateSemverVersionFromTag(sourceTagName);
         await api_utils_1.validateIfReleaseIsPublished(sourceTagName, octokitClient);
         const majorTag = version_utils_1.getMajorTagFromFullTag(sourceTagName);
@@ -160,11 +160,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.validateSemverVersionFromTag = exports.getMajorTagFromFullTag = void 0;
+exports.validateSemverVersionFromTag = exports.getMajorTagFromFullTag = exports.isStableSemverVersion = void 0;
 const parse_1 = __importDefault(__nccwpck_require__(5925));
 function isStableSemverVersion(version) {
     return version.prerelease.length === 0;
 }
+exports.isStableSemverVersion = isStableSemverVersion;
 function getMajorTagFromFullTag(fullTag) {
     return fullTag.split('.')[0];
 }

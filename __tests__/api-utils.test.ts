@@ -1,8 +1,8 @@
-import * as github from '@actions/github';
+import * as github from "@actions/github";
 import * as apiUtils from "../src/api-utils";
 
-const prereleaseData = require('./data/pre-release.json');
-const releaseData = require('./data/release.json');
+const prereleaseData = require("./data/pre-release.json");
+const releaseData = require("./data/release.json");
 
 const token = "faketoken";
 const octokitClient = github.getOctokit(token);
@@ -13,7 +13,7 @@ process.env.GITHUB_REPOSITORY = "test/repository";
 
 describe("validateIfReleaseIsPublished", () => {
     beforeEach(() => {
-        getReleaseSpy = jest.spyOn(octokitClient.repos, 'getReleaseByTag');
+        getReleaseSpy = jest.spyOn(octokitClient.repos, "getReleaseByTag");
     });
 
     it("throw if release is marked as pre-release", async () => {
