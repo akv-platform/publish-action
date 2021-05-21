@@ -55,7 +55,7 @@ async function getTagSHA(tag, octokitClient) {
 }
 async function validateIfReleaseIsPublished(tag, octokitClient) {
     try {
-        const { data: foundRelease } = await octokitClient.rest.repos.getReleaseByTag({
+        const { data: foundRelease } = await octokitClient.repos.getReleaseByTag({
             ...github_1.context.repo,
             tag,
         });
@@ -78,7 +78,7 @@ async function updateTag(sourceTag, targetTag, octokitClient) {
     const foundTargetTag = await findTag(targetTag, octokitClient);
     const refName = `tags/${targetTag}`;
     if (foundTargetTag) {
-        core.info(`Updating the ${targetTag} tag to point to the ${sourceTag} tag`);
+        core.info(`Updating the '${targetTag}' tag to point to the '${sourceTag}' tag`);
         await octokitClient.git.updateRef({
             ...github_1.context.repo,
             ref: refName,
@@ -87,7 +87,7 @@ async function updateTag(sourceTag, targetTag, octokitClient) {
         });
     }
     else {
-        core.info(`Creating the ${targetTag} tag from the ${sourceTag} tag`);
+        core.info(`Creating the '${targetTag}' tag from the '${sourceTag}' tag`);
         await octokitClient.git.createRef({
             ...github_1.context.repo,
             ref: `refs/${refName}`,
@@ -133,13 +133,13 @@ async function run() {
     try {
         const token = core.getInput('token');
         const octokitClient = github.getOctokit(token);
-        const sourceTagName = core.getInput('tag-name');
+        const sourceTagName = core.getInput('source-tag');
         version_utils_1.validateSemverVersionFromTag(sourceTagName);
         await api_utils_1.validateIfReleaseIsPublished(sourceTagName, octokitClient);
         const majorTag = version_utils_1.getMajorTagFromFullTag(sourceTagName);
         await api_utils_1.updateTag(sourceTagName, majorTag, octokitClient);
         core.setOutput('major-tag', majorTag);
-        core.info(`The ${majorTag} major tag now points to the ${sourceTagName} tag`);
+        core.info(`The '${majorTag}' major tag now points to the '${sourceTagName}' tag`);
     }
     catch (error) {
         core.setFailed(error.message);
@@ -160,11 +160,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.validateSemverVersionFromTag = exports.getMajorTagFromFullTag = void 0;
+exports.validateSemverVersionFromTag = exports.getMajorTagFromFullTag = exports.isStableSemverVersion = void 0;
 const parse_1 = __importDefault(__nccwpck_require__(5925));
 function isStableSemverVersion(version) {
-    return version.prerelease.length === 0 && version.build.length === 0;
+    return version.prerelease.length === 0;
 }
+exports.isStableSemverVersion = isStableSemverVersion;
 function getMajorTagFromFullTag(fullTag) {
     return fullTag.split('.')[0];
 }

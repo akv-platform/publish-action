@@ -7,7 +7,7 @@ async function run(): Promise<void> {
     try {
         const token = core.getInput('token');
         const octokitClient = github.getOctokit(token);
-        const sourceTagName = core.getInput('tag-name');
+        const sourceTagName = core.getInput('source-tag');
 
         validateSemverVersionFromTag(sourceTagName);
 
@@ -17,7 +17,7 @@ async function run(): Promise<void> {
         await updateTag(sourceTagName, majorTag, octokitClient);
 
         core.setOutput('major-tag', majorTag);
-        core.info(`The ${majorTag} major tag now points to the ${sourceTagName} tag`);
+        core.info(`The '${majorTag}' major tag now points to the '${sourceTagName}' tag`);
     } catch (error) {
         core.setFailed(error.message);
     }
