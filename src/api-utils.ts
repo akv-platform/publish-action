@@ -109,10 +109,9 @@ export async function updateTag(
 
 export async function postMessageToSlack(slackWebhook: string, message: string): Promise<void> {
     core.info(`in functoin`);
+    const jsonMessage = {text: message}
     const http = new HttpClient();
-    const res = await http.post(slackWebhook, message);
-    const body: string = await res.readBody()
-    core.info(`body: ${body}`);
-    core.info(`statusCode: ${res.message.statusCode}`);
+    const res = await http.postJson(slackWebhook, jsonMessage);
+    core.info(`statusCode: ${res.statusCode}`);
     core.info(`quit`);
 }
