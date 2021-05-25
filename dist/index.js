@@ -100,7 +100,10 @@ exports.updateTag = updateTag;
 async function postMessageToSlack(slackWebhook, message) {
     core.info(`in functoin`);
     const http = new http_client_1.HttpClient();
-    await http.post(slackWebhook, message);
+    const res = await http.post(slackWebhook, message);
+    const body = await res.readBody();
+    core.info(`body: ${body}`);
+    core.info(`statusCode: ${res.message.statusCode}`);
     core.info(`quit`);
 }
 exports.postMessageToSlack = postMessageToSlack;
