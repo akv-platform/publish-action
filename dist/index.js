@@ -98,14 +98,9 @@ async function updateTag(sourceTag, targetTag, octokitClient) {
 }
 exports.updateTag = updateTag;
 async function postMessageToSlack(slackWebhook, message) {
-    // const jsonData = {text: message}
+    const jsonData = { text: message };
     const http = new http_client_1.HttpClient();
-    await http.postJson(slackWebhook, message);
-    // if (response.statusCode !== 200) {
-    //     throw new Error(
-    //         `Posting a Slack message failed with the following status code: ${response.statusCode}`
-    //     );
-    // }
+    await http.postJson(slackWebhook, jsonData);
 }
 exports.postMessageToSlack = postMessageToSlack;
 
@@ -147,28 +142,28 @@ async function run() {
         const token = core.getInput('token');
         const octokitClient = github.getOctokit(token);
         const sourceTagName = core.getInput('source-tag');
-        const slackWebhook = core.getInput('slack-webhook');
         version_utils_1.validateSemverVersionFromTag(sourceTagName);
         await api_utils_1.validateIfReleaseIsPublished(sourceTagName, octokitClient);
         const majorTag = version_utils_1.getMajorTagFromFullTag(sourceTagName);
         await api_utils_1.updateTag(sourceTagName, majorTag, octokitClient);
         core.setOutput('major-tag', majorTag);
         core.info(`The '${majorTag}' major tag now points to the '${sourceTagName}' tag`);
-        if (slackWebhook) {
-            const slackMessage = `The ${majorTag} tag has been successfully updated for the ${github_1.context.repo.repo} action to include changes from the ${sourceTagName}`;
-            await api_utils_1.postMessageToSlack(slackWebhook, slackMessage);
-        }
+        const slackMessage = `The ${majorTag} tag has been successfully updated for the ${github_1.context.repo.repo} action to include changes from the ${sourceTagName}`;
+        await reportStatusToSlack(slackMessage);
     }
     catch (error) {
         core.setFailed(error.message);
-        const slackWebhook = core.getInput('slack-webhook');
-        if (slackWebhook) {
-            const slackMessage = `Failed to update a major tag for the ${github_1.context.repo.repo} action`;
-            await api_utils_1.postMessageToSlack(slackWebhook, slackMessage);
-        }
+        const slackMessage = `Failed to update a major tag for the ${github_1.context.repo.repo} action`;
+        await reportStatusToSlack(slackMessage);
     }
 }
 ;
+async function reportStatusToSlack(message) {
+    const slackWebhook = core.getInput('slack-webhook');
+    if (slackWebhook) {
+        await api_utils_1.postMessageToSlack(slackWebhook, message);
+    }
+}
 run();
 
 
