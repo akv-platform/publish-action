@@ -60,7 +60,7 @@ export async function validateIfReleaseIsPublished(
             tag,
         });
 
-        if (foundRelease.prerelease){
+        if (foundRelease.prerelease) {
             throw new Error(
                 `The '${foundRelease.name}' release is marked as pre-release. Updating tags for pre-release is not supported`
             );
@@ -108,10 +108,12 @@ export async function updateTag(
 }
 
 export async function postMessageToSlack(slackWebhook: string, message: string): Promise<void> {
-    core.info(`in functoin`);
-    const jsonMessage = {text: message}
+    const jsonData = {text: message}
     const http = new HttpClient();
-    const res = await http.postJson(slackWebhook, jsonMessage);
-    core.info(`statusCode: ${res.statusCode}`);
-    core.info(`quit`);
+    const response = await http.postJson(slackWebhook, jsonData);
+    if (response.statusCode !== 200) {
+        throw new Error(
+            `Posting a Slack message failed with the following status code: ${response.statusCode}`
+        );
+    }
 }

@@ -98,12 +98,12 @@ async function updateTag(sourceTag, targetTag, octokitClient) {
 }
 exports.updateTag = updateTag;
 async function postMessageToSlack(slackWebhook, message) {
-    core.info(`in functoin`);
-    const jsonMessage = { text: message };
+    const jsonData = { text: message };
     const http = new http_client_1.HttpClient();
-    const res = await http.postJson(slackWebhook, jsonMessage);
-    core.info(`statusCode: ${res.statusCode}`);
-    core.info(`quit`);
+    const response = await http.postJson(slackWebhook, jsonData);
+    if (response.statusCode !== 200) {
+        throw new Error(`Posting a Slack message failed with the following status code: ${response.statusCode}`);
+    }
 }
 exports.postMessageToSlack = postMessageToSlack;
 
@@ -153,7 +153,6 @@ async function run() {
         core.setOutput('major-tag', majorTag);
         core.info(`The '${majorTag}' major tag now points to the '${sourceTagName}' tag`);
         if (slackWebhook) {
-            core.info(`if works`);
             const slackMessage = `The ${majorTag} tag has been successfully updated for the ${github_1.context.repo.repo} action to include changes from the ${sourceTagName}`;
             await api_utils_1.postMessageToSlack(slackWebhook, slackMessage);
         }
