@@ -98,8 +98,10 @@ async function updateTag(sourceTag, targetTag, octokitClient) {
 }
 exports.updateTag = updateTag;
 async function postMessageToSlack(slackWebhook, message) {
+    core.info(`in functoin`);
     const http = new http_client_1.HttpClient();
     await http.post(slackWebhook, message);
+    core.info(`quit`);
 }
 exports.postMessageToSlack = postMessageToSlack;
 
@@ -149,6 +151,7 @@ async function run() {
         core.setOutput('major-tag', majorTag);
         core.info(`The '${majorTag}' major tag now points to the '${sourceTagName}' tag`);
         if (slackWebhook) {
+            core.info(`if works`);
             const slackMessage = `The ${majorTag} tag has been successfully updated for the ${github_1.context.repo.repo} action to include changes from the ${sourceTagName}`;
             await api_utils_1.postMessageToSlack(slackWebhook, slackMessage);
         }

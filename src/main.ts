@@ -20,8 +20,9 @@ async function run(): Promise<void> {
 
         core.setOutput('major-tag', majorTag);
         core.info(`The '${majorTag}' major tag now points to the '${sourceTagName}' tag`);
-
+        
         if(slackWebhook){
+            core.info(`if works`);
             const slackMessage = `The ${majorTag} tag has been successfully updated for the ${context.repo.repo} action to include changes from the ${sourceTagName}`;
             await postMessageToSlack(slackWebhook, slackMessage);
         }
