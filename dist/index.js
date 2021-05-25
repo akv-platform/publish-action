@@ -100,10 +100,12 @@ exports.updateTag = updateTag;
 async function postMessageToSlack(slackWebhook, message) {
     // const jsonData = {text: message}
     const http = new http_client_1.HttpClient();
-    const response = await http.postJson(slackWebhook, message);
-    if (response.statusCode !== 200) {
-        throw new Error(`Posting a Slack message failed with the following status code: ${response.statusCode}`);
-    }
+    await http.postJson(slackWebhook, message);
+    // if (response.statusCode !== 200) {
+    //     throw new Error(
+    //         `Posting a Slack message failed with the following status code: ${response.statusCode}`
+    //     );
+    // }
 }
 exports.postMessageToSlack = postMessageToSlack;
 
