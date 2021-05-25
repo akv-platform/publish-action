@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { updateTag, validateIfReleaseIsPublished } from './api-utils';
+import { context } from '@actions/github';
+import { updateTag, validateIfReleaseIsPublished, postMessageToSlack } from './api-utils';
 import { validateSemverVersionFromTag, getMajorTagFromFullTag } from './version-utils';
 
 async function run(): Promise<void> {
@@ -8,6 +9,7 @@ async function run(): Promise<void> {
         const token = core.getInput('token');
         const octokitClient = github.getOctokit(token);
         const sourceTagName = core.getInput('source-tag');
+        const slackWebhook = core.getInput('slack-webhook');
 
         validateSemverVersionFromTag(sourceTagName);
 
@@ -18,7 +20,18 @@ async function run(): Promise<void> {
 
         core.setOutput('major-tag', majorTag);
         core.info(`The '${majorTag}' major tag now points to the '${sourceTagName}' tag`);
+
+        if(slackWebhook){
+            const slackMessage = `The ${majorTag} tag has been successfully updated for the ${context.repo.repo} action to include changes from the ${sourceTagName}`;
+            await postMessageToSlack(slackWebhook, slackMessage);
+        }
     } catch (error) {
+        const slackWebhook = core.getInput('slack-webhook');
+        if(slackWebhook){
+            const slackMessage = `Failed to update a major tag for the ${context.repo.repo} action`;
+            await postMessageToSlack(slackWebhook, slackMessage);
+        }
+
         core.setFailed(error.message);
     }
 };

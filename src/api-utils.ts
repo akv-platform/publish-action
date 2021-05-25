@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import { context } from '@actions/github';
 import { GitHub } from '@actions/github/lib/utils';
+import { HttpClient } from '@actions/http-client';
 
 interface GitRef {
     ref: string;
@@ -104,4 +105,9 @@ export async function updateTag(
             sha: sourceTagSHA
         });
     }
+}
+
+export async function postMessageToSlack(slackWebhook: string, message: string): Promise<void> {
+    const http = new HttpClient();
+    await http.post(slackWebhook, message);
 }
