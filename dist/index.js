@@ -158,12 +158,12 @@ async function run() {
         }
     }
     catch (error) {
+        core.setFailed(error.message);
         const slackWebhook = core.getInput('slack-webhook');
         if (slackWebhook) {
             const slackMessage = `Failed to update a major tag for the ${github_1.context.repo.repo} action`;
             await api_utils_1.postMessageToSlack(slackWebhook, slackMessage);
         }
-        core.setFailed(error.message);
     }
 }
 ;
