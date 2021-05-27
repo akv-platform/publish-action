@@ -10,9 +10,6 @@ on:
 
 env:
   TAG_NAME: ${{ github.event.inputs.TAG_NAME || github.event.release.tag_name }}
-defaults:
-  run:
-    shell: pwsh
 
 jobs:
   update_tag:
@@ -24,11 +21,9 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v2
-
     - name: Update the ${{ env.TAG_NAME }} tag
       id: update-major-tag
-      uses: actions/publish-action@main
+      uses: actions/publish-action@v0.1.0
       with:
         source-tag: ${{ env.TAG_NAME }}
         slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
